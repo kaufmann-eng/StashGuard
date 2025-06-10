@@ -29,8 +29,12 @@ class ProductListViewModel(
 
     val state = combine(_productsFlow, _searchQuery, _isSearchActive) {
         products, query, isSearchActive ->
+
+        val grouped = products.groupBy { it.productCategory }
+            .toSortedMap(compareBy { it.name })
+
         ProductListState(
-            products = products,
+            groupedProducts = grouped,
             searchQuery = query,
             isSearchActive = isSearchActive,
             isLoading = false

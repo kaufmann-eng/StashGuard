@@ -1,6 +1,8 @@
 package com.kaufmanneng.stashguard.presentation.productlist
 
 import android.Manifest
+import android.R.attr.category
+import android.R.attr.text
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -59,6 +61,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.kaufmanneng.stashguard.domain.model.Product
+import com.kaufmanneng.stashguard.domain.model.ProductCategory
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -168,7 +171,7 @@ fun ProductListScreen(
                     }
                 } else {
                     ProductListContent(
-                        products = state.products,
+                        groupedProducts = state.groupedProducts,
                         onAction = onAction,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -216,7 +219,7 @@ private fun ProductSearchBar(
             onExpandedChange = { onAction(ProductListAction.OnSearchActiveChanged(it)) }
         ) {
             ProductListContent(
-                products = state.products,
+                groupedProducts = state.groupedProducts,
                 onAction = onAction,
                 modifier = Modifier.fillMaxSize()
             )
@@ -226,7 +229,7 @@ private fun ProductSearchBar(
 
 @Composable
 private fun ProductListContent(
-    products: List<Product>,
+    groupedProducts: Map<ProductCategory, List<Product>>,
     onAction: (ProductListAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -234,52 +237,74 @@ private fun ProductListContent(
         modifier = modifier.padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(
-            items = products,
-            key = { product -> product.id }
-        ) { product ->
-            val swipeState = rememberSwipeToDismissBoxState(
-                confirmValueChange = { swipeValue -> true }
-            )
-            LaunchedEffect(swipeState.currentValue) {
-                if (swipeState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-                    onAction(ProductListAction.OnDeleteProduct(product))
-                    swipeState.snapTo(SwipeToDismissBoxValue.Settled)
-                }
+
+        groupedProducts.forEach { (category, productsInCategory) ->
+            stickyHeader {
+                CategoryHeader(name = category.name)
             }
-            SwipeToDismissBox(
-                modifier = Modifier.animateItem(),
-                state = swipeState,
-                backgroundContent = {
-                    val color = when (swipeState.dismissDirection) {
-                        SwipeToDismissBoxValue.EndToStart -> Color.Red
-                        else -> Color.Transparent
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(MaterialTheme.shapes.medium)
-                            .background(color)
-                            .padding(16.dp),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete Product",
-                            tint = Color.White
-                        )
-                    }
-                },
-                enableDismissFromStartToEnd = false
-            ) {
-                ProductItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    product = product,
-                    onClick = { onAction(ProductListAction.OnProductClicked(product)) }
+
+            items(
+                items = productsInCategory,
+                key = { product -> product.id }
+            ) { product ->
+                val swipeState = rememberSwipeToDismissBoxState(
+                    confirmValueChange = { swipeValue -> true }
                 )
+                LaunchedEffect(swipeState.currentValue) {
+                    if (swipeState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                        onAction(ProductListAction.OnDeleteProduct(product))
+                        swipeState.snapTo(SwipeToDismissBoxValue.Settled)
+                    }
+                }
+                SwipeToDismissBox(
+                    modifier = Modifier.animateItem(),
+                    state = swipeState,
+                    backgroundContent = {
+                        val color = when (swipeState.dismissDirection) {
+                            SwipeToDismissBoxValue.EndToStart -> Color.Red
+                            else -> Color.Transparent
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(MaterialTheme.shapes.medium)
+                                .background(color)
+                                .padding(16.dp),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete Product",
+                                tint = Color.White
+                            )
+                        }
+                    },
+                    enableDismissFromStartToEnd = false
+                ) {
+                    ProductItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        product = product,
+                        onClick = { onAction(ProductListAction.OnProductClicked(product)) }
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+private fun CategoryHeader(
+    name: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = name,
+        style = MaterialTheme.typography.titleMedium,
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(vertical = 8.dp)
+    )
 }
 
 @Composable
