@@ -22,12 +22,12 @@ class ProductCategoryLocalDataSourceImpl(
     }
 
     override suspend fun upsertCategory(category: ProductCategory) {
-        if (category.isDefault) {
+        if (!category.isDefault) {
             dao.upsertCategory(category.toEntity())
         }
     }
     override suspend fun deleteCategory(category: ProductCategory) {
-        if (category.isDefault) {
+        if (!category.isDefault) {
             dao.deleteCategory(category.toEntity())
         }
     }
