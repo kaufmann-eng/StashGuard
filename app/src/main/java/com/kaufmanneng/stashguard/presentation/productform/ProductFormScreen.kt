@@ -1,5 +1,6 @@
 package com.kaufmanneng.stashguard.presentation.productform
 
+import android.R.attr.enabled
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,11 +18,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -40,6 +45,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -61,8 +67,11 @@ fun ProductFormScreen(
     onAction: (ProductFormAction) -> Unit
 ) {
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
+    var showCategoryDropDownMenu by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val focusManager = LocalFocusManager.current
+
+    state.isEditMode
 
     LaunchedEffect(Unit) {
         event.collect { event ->
@@ -129,33 +138,57 @@ fun ProductFormScreen(
                     platformImeOptions = null,
                     showKeyboardOnFocus = true,
                     hintLocales = null
-                )
-            )
-
-            OutlinedTextField(
-                value = state.category,
-                onValueChange = {
-                    onAction(ProductFormAction.OnCategoryChanged(it))
-                },
-                label = { Text("Category") },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isSaving,
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words,
-                    autoCorrectEnabled = true,
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Done,
-                    platformImeOptions = null,
-                    showKeyboardOnFocus = true,
-                    hintLocales = null
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = {
-                        focusManager.clearFocus() // Hide the keyboard
-                        showDatePicker = true
+                    onNext = {
+                        if (state.productCategory == null) {
+                            focusManager.moveFocus(FocusDirection.Down)
+                            showCategoryDropDownMenu = true
+                        } else {
+                            focusManager.clearFocus()
+                            showDatePicker = true
+                        }
                     }
                 )
             )
+
+
+            ExposedDropdownMenuBox(
+                expanded = showCategoryDropDownMenu,
+                onExpandedChange = { showCategoryDropDownMenu = !showCategoryDropDownMenu },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier.menuAnchor(
+                        type = MenuAnchorType.PrimaryNotEditable,
+                        enabled = !state.isSaving
+                    ).fillMaxWidth(),
+                    placeholder = { Text("Choose category") },
+                    label = { Text("Category") },
+                    readOnly = true,
+                    value = state.productCategory?.name ?: "",
+                    onValueChange = {},
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showCategoryDropDownMenu) },
+                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                    enabled = !state.isSaving
+                )
+                ExposedDropdownMenu(
+                    expanded = showCategoryDropDownMenu,
+                    onDismissRequest = { showCategoryDropDownMenu = false }
+                ) {
+                    state.availableCategories.forEach { category ->
+                        DropdownMenuItem(
+                            text = { Text(category.name) },
+                            onClick = {
+                                onAction(ProductFormAction.OnCategorySelected(category))
+                                showCategoryDropDownMenu = false
+                                focusManager.clearFocus()
+                                showDatePicker = true
+                            }
+                        )
+                    }
+                }
+            }
 
             Button(
                 onClick = { showDatePicker = true },

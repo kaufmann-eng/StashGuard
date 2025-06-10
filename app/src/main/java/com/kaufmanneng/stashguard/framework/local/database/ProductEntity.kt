@@ -10,8 +10,8 @@ data class ProductEntity(
     @PrimaryKey
     val id: UUID,
     val name: String,
-    val category: String,
+    val productCategoryId: UUID,
     val expirationDate: LocalDate,
     val quantity: Int,
-    val addedDate: LocalDate,
+    val addedDate: LocalDate
 )

@@ -22,8 +22,8 @@ interface ProductDao {
     @Query("SELECT * FROM products WHERE id = :id")
     suspend fun getProductById(id: UUID): ProductEntity?
 
-    @Query("SELECT * FROM products WHERE name = :name AND category = :category AND expirationDate = :expirationDate")
-    suspend fun findByDetails(name: String, category: String, expirationDate: LocalDate): ProductEntity?
+    @Query("SELECT * FROM products WHERE name = :name AND productCategoryId = :productCategoryId AND expirationDate = :expirationDate")
+    suspend fun findByDetails(name: String, productCategoryId: UUID, expirationDate: LocalDate): ProductEntity?
 
     @Query("SELECT * FROM products WHERE expirationDate <= :date")
     suspend fun getProductsExpiringBy(date: LocalDate): List<ProductEntity>

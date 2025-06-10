@@ -9,7 +9,7 @@ import java.util.UUID
 data class Product(
     val id: UUID = UUID.randomUUID(),
     val name: String,
-    val category: String,
+    val productCategory: ProductCategory,
     val expirationDate: LocalDate,
     val quantity: Int = 1,
     val addedDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),

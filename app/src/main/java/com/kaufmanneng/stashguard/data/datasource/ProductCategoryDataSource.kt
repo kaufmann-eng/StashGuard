@@ -1,11 +1,12 @@
-package com.kaufmanneng.stashguard.domain.repository
+package com.kaufmanneng.stashguard.data.datasource
 
 import com.kaufmanneng.stashguard.domain.model.ProductCategory
 import kotlinx.coroutines.flow.Flow
 
-interface ProductCategoryRepository {
+interface ProductCategoryDataSource {
     fun getAllCategories(): Flow<List<ProductCategory>>
-    suspend fun addCategory(name: String)
-    suspend fun updateCategory(category: ProductCategory)
+
+    suspend fun upsertCategory(category: ProductCategory)
+
     suspend fun deleteCategory(category: ProductCategory)
 }

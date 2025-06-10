@@ -298,7 +298,7 @@ private fun ProductItem(
     ) {
         Column {
             Text(text = product.name, style = MaterialTheme.typography.titleMedium)
-            Text(text = "Category: ${product.category}", style = MaterialTheme.typography.bodySmall)
+            Text(text = "Category: ${product.productCategory.name}", style = MaterialTheme.typography.bodySmall)
             Text(text = "Quantity: ${product.quantity}", style = MaterialTheme.typography.bodySmall)
             Text(text = "Expires in: $daysUntilExpiry days", style = MaterialTheme.typography.bodyMedium)
         }

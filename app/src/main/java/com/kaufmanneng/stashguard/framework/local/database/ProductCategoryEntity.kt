@@ -8,5 +8,6 @@ import java.util.UUID
 data class ProductCategoryEntity(
     @PrimaryKey
     val id: UUID,
-    val name: String
+    val name: String,
+    val isDefault: Boolean
 )

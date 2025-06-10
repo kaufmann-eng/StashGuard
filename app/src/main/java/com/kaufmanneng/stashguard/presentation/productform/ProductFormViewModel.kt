@@ -6,13 +6,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.kaufmanneng.stashguard.domain.model.Product
+import com.kaufmanneng.stashguard.domain.repository.ProductCategoryRepository
 import com.kaufmanneng.stashguard.domain.repository.ProductRepository
 import com.kaufmanneng.stashguard.presentation.navigation.ProductForm
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -20,6 +23,7 @@ import java.util.UUID
 
 class ProductFormViewModel(
     private val productRepository: ProductRepository,
+    private val categoryRepository: ProductCategoryRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -33,8 +37,9 @@ class ProductFormViewModel(
         }
     }
 
+    private val _categoriesFlow = categoryRepository.getAllCategories()
+
     private val _state = MutableStateFlow(ProductFormState())
-    val state = _state.asStateFlow()
 
     init {
         _initialId?.let {
@@ -43,7 +48,7 @@ class ProductFormViewModel(
                     _state.update { currentState ->
                         currentState.copy(
                             name = product.name,
-                            category = product.category,
+                            productCategory = product.productCategory,
                             quantity = product.quantity,
                             expirationDate = product.expirationDate,
                             isEditMode = true
@@ -59,25 +64,35 @@ class ProductFormViewModel(
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
 
-    val navigationEvent = _navigationEvent.asSharedFlow()
-
     private val _screenEvent = MutableSharedFlow<ProductFormScreenEvent>(
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
+
+    val state = combine(
+        flow = _state,
+        flow2 = _categoriesFlow
+    ) { formState, categories ->
+        formState.copy(availableCategories = categories)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = _state.value
+    )
+
+    val navigationEvent = _navigationEvent.asSharedFlow()
 
     val screenEvent = _screenEvent.asSharedFlow()
 
     fun onAction(action: ProductFormAction) {
         when (action) {
             is ProductFormAction.OnNameChanged -> onNameChange(action.name)
-            is ProductFormAction.OnCategoryChanged -> onCategoryChange(action.category)
             is ProductFormAction.OnDateSelected -> onDateSelected(action.date)
             ProductFormAction.OnIncrementQuantity -> {
                 _state.update { it.copy(quantity = it.quantity + 1) }
             }
             ProductFormAction.OnDecrementQuantity -> {
-                if (state.value.quantity > 1) {
+                if (_state.value.quantity > 1) {
                     _state.update { it.copy(quantity = it.quantity - 1) }
                 }
             }
@@ -91,15 +106,14 @@ class ProductFormViewModel(
                     _navigationEvent.emit(ProductFormNavigationEvent.OnNavigateBack)
                 }
             }
+            is ProductFormAction.OnCategorySelected -> {
+                _state.update { it.copy(productCategory = action.productCategory) }
+            }
         }
     }
 
     private fun onNameChange(newName: String) {
         _state.update { it.copy(name = newName) }
-    }
-
-    private fun onCategoryChange(newCategory: String) {
-        _state.update { it.copy(category = newCategory) }
     }
 
     private fun onDateSelected(newDate: LocalDate) {
@@ -109,7 +123,7 @@ class ProductFormViewModel(
     private suspend fun saveProduct(onProductSaved: suspend () -> Unit) {
         val currentState = _state.value
 
-        if (currentState.name.isBlank() || currentState.category.isBlank() || currentState.expirationDate == null) {
+        if (currentState.name.isBlank() || currentState.productCategory == null || currentState.expirationDate == null) {
             _screenEvent.emit(ProductFormScreenEvent.ErrorNotAllFieldsFilled)
             return
         }
@@ -120,7 +134,7 @@ class ProductFormViewModel(
             val productToUpdate = Product(
                 id = _initialId!!,
                 name = currentState.name.trim(),
-                category = currentState.category.trim().ifBlank { "General" },
+                productCategory = currentState.productCategory,
                 expirationDate = currentState.expirationDate,
                 quantity = currentState.quantity
             )
@@ -128,7 +142,7 @@ class ProductFormViewModel(
         } else {
             val existingProduct = productRepository.findProductByDetails(
                 name = currentState.name.trim(),
-                category = currentState.category.trim().ifBlank { "General" },
+                productCategoryId = currentState.productCategory.id,
                 expirationDate = currentState.expirationDate
             )
 
@@ -141,14 +155,14 @@ class ProductFormViewModel(
                 val newProduct = Product(
                     id = UUID.randomUUID(),
                     name = currentState.name.trim(),
-                    category = currentState.category.trim().ifBlank { "General" },
+                    productCategory = currentState.productCategory,
                     expirationDate = currentState.expirationDate,
                     quantity = currentState.quantity
                 )
                 productRepository.addOrUpdateProduct(newProduct)
             }
         }
-        _state.update { it.copy(isSaving = false) }
         onProductSaved()
+        _state.update { it.copy(isSaving = false) }
     }
 }

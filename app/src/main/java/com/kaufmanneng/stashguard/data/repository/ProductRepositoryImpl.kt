@@ -1,5 +1,6 @@
 package com.kaufmanneng.stashguard.data.repository
 
+import android.R.attr.category
 import com.kaufmanneng.stashguard.data.datasource.ProductLocalDataSource
 import com.kaufmanneng.stashguard.domain.model.Product
 import com.kaufmanneng.stashguard.domain.repository.ProductRepository
@@ -27,10 +28,14 @@ class ProductRepositoryImpl(
 
     override suspend fun findProductByDetails(
         name: String,
-        category: String,
+        productCategoryId: UUID,
         expirationDate: LocalDate
     ): Product? {
-        return localDataSource.findProductByDetails(name, category, expirationDate)
+        return localDataSource.findProductByDetails(
+            name = name,
+            productCategoryId = productCategoryId,
+            expirationDate = expirationDate
+        )
     }
 
     override suspend fun getProductsExpiringSoon(daysInAdvance: Int): List<Product> {

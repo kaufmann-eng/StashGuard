@@ -13,7 +13,7 @@ interface ProductLocalDataSource {
 
     suspend fun findProductByDetails(
         name: String,
-        category: String,
+        productCategoryId: UUID,
         expirationDate:
         LocalDate
     ): Product?

@@ -11,7 +11,7 @@ interface ProductRepository {
 
     suspend fun getProductById(id: UUID): Product?
 
-    suspend fun findProductByDetails(name: String, category: String, expirationDate: LocalDate): Product?
+    suspend fun findProductByDetails(name: String, productCategoryId: UUID, expirationDate: LocalDate): Product?
 
     suspend fun getProductsExpiringSoon(daysInAdvance: Int): List<Product>
 
