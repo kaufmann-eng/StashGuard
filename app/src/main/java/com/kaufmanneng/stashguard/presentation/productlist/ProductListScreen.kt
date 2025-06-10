@@ -21,9 +21,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -137,9 +140,39 @@ fun ProductListScreen(
         }
     }
 
+    var showMenu by rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Product List") })
+            TopAppBar(
+                title = { Text("Product List") },
+                actions = {
+                    IconButton(
+                        onClick = { onAction(ProductListAction.OnSearchActiveChanged(true))}
+                    ) {
+                        Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+                    }
+                    Box {
+                        IconButton(
+                            onClick = { showMenu = true }
+                        ) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "More options")
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Manage Categories") },
+                                onClick = {
+                                    showMenu = false
+                                    onAction(ProductListAction.OnManageCategoriesClicked)
+                                }
+                            )
+                        }
+                    }
+                }
+            )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { onAction(ProductListAction.OnAddProductClicked) }) {

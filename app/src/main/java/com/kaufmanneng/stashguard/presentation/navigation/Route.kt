@@ -10,3 +10,6 @@ data object ProductList : Route
 
 @Serializable
 data class ProductForm(val productId: String?) : Route
+
+@Serializable
+data object ProductCategoryManagement : Route

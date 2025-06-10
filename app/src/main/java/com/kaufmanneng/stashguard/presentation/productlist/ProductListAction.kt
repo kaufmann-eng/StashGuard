@@ -9,4 +9,5 @@ sealed interface ProductListAction {
     data class OnDeleteProduct(val product: Product) : ProductListAction
     data class OnUndoDeleteClicked(val product: Product) : ProductListAction
     data class OnProductClicked(val product: Product) : ProductListAction
+    data object OnManageCategoriesClicked : ProductListAction
 }

@@ -84,6 +84,11 @@ class ProductListViewModel(
                     _navigationEvent.emit(ProductListNavigationEvent.OnNavigateToProductForm(action.product.id))
                 }
             }
+            is ProductListAction.OnManageCategoriesClicked -> {
+                viewModelScope.launch {
+                    _navigationEvent.emit(ProductListNavigationEvent.OnNavigateToCategoryManagement)
+                }
+            }
         }
     }
 
