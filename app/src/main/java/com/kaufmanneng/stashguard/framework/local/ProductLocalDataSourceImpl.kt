@@ -1,6 +1,5 @@
 package com.kaufmanneng.stashguard.framework.local
 
-import android.R.attr.category
 import android.content.Context
 import android.util.Log
 import com.kaufmanneng.stashguard.R
@@ -8,11 +7,9 @@ import com.kaufmanneng.stashguard.data.datasource.ProductCategoryDataSource
 import com.kaufmanneng.stashguard.data.datasource.ProductLocalDataSource
 import com.kaufmanneng.stashguard.domain.model.Product
 import com.kaufmanneng.stashguard.domain.model.ProductCategory
-import com.kaufmanneng.stashguard.framework.local.database.ProductCategoryDao
 import com.kaufmanneng.stashguard.framework.local.database.ProductDao
 import com.kaufmanneng.stashguard.framework.local.database.toDomain
 import com.kaufmanneng.stashguard.framework.local.database.toEntity
-import com.kaufmanneng.stashguard.framework.provider.DefaultProductCategoryProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first

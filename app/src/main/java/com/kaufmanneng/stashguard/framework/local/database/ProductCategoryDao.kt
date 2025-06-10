@@ -3,7 +3,6 @@ package com.kaufmanneng.stashguard.framework.local.database
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
-import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID

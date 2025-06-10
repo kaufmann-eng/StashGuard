@@ -5,9 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kaufmanneng.stashguard.framework.local.converters.DateTimeConverters
-import java.util.concurrent.Executors
 
 @Database(
     entities = [ProductEntity::class, ProductCategoryEntity::class],

@@ -23,7 +23,7 @@ import java.util.UUID
 
 class ProductFormViewModel(
     private val productRepository: ProductRepository,
-    private val categoryRepository: ProductCategoryRepository,
+    categoryRepository: ProductCategoryRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 

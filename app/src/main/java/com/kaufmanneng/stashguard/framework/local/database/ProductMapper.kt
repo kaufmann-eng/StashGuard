@@ -1,6 +1,5 @@
 package com.kaufmanneng.stashguard.framework.local.database
 
-import android.R.attr.category
 import com.kaufmanneng.stashguard.domain.model.Product
 import com.kaufmanneng.stashguard.domain.model.ProductCategory
 

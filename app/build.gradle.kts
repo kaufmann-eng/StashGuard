@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.internal.types.error.ErrorModuleDescriptor.platform
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
