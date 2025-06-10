@@ -10,7 +10,7 @@ import java.util.UUID
 
 private data class DefaultProductCategoryDefinition(
     val key: String,
-    //@StringRes
+    @StringRes
     val nameResId: Int
 )
 
@@ -18,13 +18,7 @@ object DefaultProductCategoryProvider : KoinComponent {
 
     private val context: Context by inject()
 
-    private val defaultDefinition = DefaultProductCategoryDefinition(
-        key = "product_category_undefined",
-        nameResId = R.string.product_category_undefined
-    )
-
     private val allDefinitions = listOf<DefaultProductCategoryDefinition>(
-        defaultDefinition,
         DefaultProductCategoryDefinition(
             key = "product_category_canned_goods",
             nameResId = R.string.product_category_canned_goods
@@ -34,14 +28,6 @@ object DefaultProductCategoryProvider : KoinComponent {
             nameResId = R.string.product_category_pasta_rice
         ),
     )
-
-    fun getDefault(): ProductCategory {
-        return ProductCategory(
-            id = UUID.nameUUIDFromBytes(defaultDefinition.key.toByteArray()),
-            name = context.getString(defaultDefinition.nameResId),
-            isDefault = true
-        )
-    }
 
     fun getDefaults(): List<ProductCategory> {
         return allDefinitions.map { definition ->

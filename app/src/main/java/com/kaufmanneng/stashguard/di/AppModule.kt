@@ -22,7 +22,7 @@ val appModule = module {
     factory { get<AppDataBase>().productCategoryDao() }
 
     // DataSources
-    single<ProductLocalDataSource> { ProductLocalDataSourceImpl(get(), get()) }
+    single<ProductLocalDataSource> { ProductLocalDataSourceImpl(get(), get(), androidContext()) }
     single<ProductCategoryDataSource> { ProductCategoryLocalDataSourceImpl(get()) }
 
     // Repositories

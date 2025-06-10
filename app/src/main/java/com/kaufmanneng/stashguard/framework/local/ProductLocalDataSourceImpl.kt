@@ -1,6 +1,10 @@
 package com.kaufmanneng.stashguard.framework.local
 
+import android.R.attr.category
+import android.content.Context
 import android.util.Log
+import com.kaufmanneng.stashguard.R
+import com.kaufmanneng.stashguard.data.datasource.ProductCategoryDataSource
 import com.kaufmanneng.stashguard.data.datasource.ProductLocalDataSource
 import com.kaufmanneng.stashguard.domain.model.Product
 import com.kaufmanneng.stashguard.domain.model.ProductCategory
@@ -17,20 +21,27 @@ import java.util.UUID
 
 class ProductLocalDataSourceImpl(
     private val productDao: ProductDao,
-    private val productCategoryDao: ProductCategoryDao
+    private val productCategoryDataSource: ProductCategoryDataSource,
+    private val applicationContext: Context
 ) : ProductLocalDataSource {
 
     override fun getProducts(query: String): Flow<List<Product>> {
         val productsFlow = productDao.getProducts(query)
-        val categoriesFlow = productCategoryDao.getCategories()
-        val defaultCategories = DefaultProductCategoryProvider.getDefaults()
-        return combine(productsFlow, categoriesFlow) { productEntities, categoryEntities ->
-            val allCategories = defaultCategories + categoryEntities.map { it.toDomain() }
+        val categoriesFlow = productCategoryDataSource.getAllCategories()
+
+        return combine(productsFlow, categoriesFlow) { productEntities, allCategories ->
             val categoryMap = allCategories.associateBy { it.id }
-            val defaultCategory = DefaultProductCategoryProvider.getDefault()
 
             productEntities.map { productEntity ->
-                val category = categoryMap[productEntity.productCategoryId] ?: defaultCategory
+                val category = categoryMap[productEntity.productCategoryId]
+                    ?: run {
+                        Log.e("ProductLocalDataSourceImpl", "product category with id ${productEntity.productCategoryId} not found")
+                        ProductCategory(
+                            id = productEntity.productCategoryId,
+                            name = applicationContext.getString(R.string.product_category_unknown),
+                            isDefault = false
+                        )
+                    }
                 productEntity.toDomain(category)
             }
         }
@@ -71,11 +82,15 @@ class ProductLocalDataSourceImpl(
     }
 
     private suspend fun getProductCategory(id: UUID): ProductCategory {
-        val productCategories = productCategoryDao.getCategories().first().map { it.toDomain() } + DefaultProductCategoryProvider.getDefaults()
+        val productCategories = productCategoryDataSource.getAllCategories().first()
         val productCategory = productCategories.find { it.id == id }
         return productCategory ?: run {
-            Log.e("ProductLocalDataSourceImpl", "Error getting product category")
-            DefaultProductCategoryProvider.getDefault()
+            Log.e("ProductLocalDataSourceImpl", "product category with id $id not found")
+            ProductCategory(
+                id = id,
+                name = applicationContext.getString(R.string.product_category_unknown),
+                isDefault = false
+            )
         }
     }
 }

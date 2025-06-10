@@ -3,5 +3,5 @@
     <string name="app_name">Stash Guard</string>
     <string name="product_category_canned_goods">Konservendosen</string>
     <string name="product_category_pasta_rice">Pasta und Reis</string>
-    <string name="product_category_undefined">nicht definiert</string>
+    <string name="product_category_unknown">Unbekannte Kategorie</string>
 </resources>

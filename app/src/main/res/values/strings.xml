@@ -2,5 +2,5 @@
     <string name="app_name">Stash Guard</string>
     <string name="product_category_canned_goods">Canned Goods</string>
     <string name="product_category_pasta_rice">Pasta and Rice</string>
-    <string name="product_category_undefined">undefined</string>
+    <string name="product_category_unknown">Unkknown category</string>
 </resources>
