@@ -4,13 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
@@ -19,6 +16,8 @@ import androidx.navigation.compose.rememberNavController
 import com.kaufmanneng.stashguard.presentation.navigation.ProductCategoryManagement
 import com.kaufmanneng.stashguard.presentation.navigation.ProductForm
 import com.kaufmanneng.stashguard.presentation.navigation.ProductList
+import com.kaufmanneng.stashguard.presentation.productcategorymanagement.ProductCategoryManagementScreen
+import com.kaufmanneng.stashguard.presentation.productcategorymanagement.ProductCategoryManagementViewModel
 import com.kaufmanneng.stashguard.presentation.productform.ProductFormNavigationEvent
 import com.kaufmanneng.stashguard.presentation.productform.ProductFormScreen
 import com.kaufmanneng.stashguard.presentation.productform.ProductFormViewModel
@@ -86,9 +85,14 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             composable<ProductCategoryManagement> {
-                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    Text("Product Category Management Screen")
-                                }
+                                val viewModel = koinViewModel<ProductCategoryManagementViewModel>()
+                                val state by viewModel.state.collectAsStateWithLifecycle()
+
+                                ProductCategoryManagementScreen(
+                                    state = state,
+                                    onAction = viewModel::onAction,
+                                    onNavigateBack = { navController.navigateUp() }
+                                )
                             }
                         }
                     }

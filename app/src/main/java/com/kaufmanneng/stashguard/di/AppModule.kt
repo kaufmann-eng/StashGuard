@@ -9,6 +9,7 @@ import com.kaufmanneng.stashguard.domain.repository.ProductRepository
 import com.kaufmanneng.stashguard.framework.local.ProductCategoryLocalDataSourceImpl
 import com.kaufmanneng.stashguard.framework.local.ProductLocalDataSourceImpl
 import com.kaufmanneng.stashguard.framework.local.database.AppDataBase
+import com.kaufmanneng.stashguard.presentation.productcategorymanagement.ProductCategoryManagementViewModel
 import com.kaufmanneng.stashguard.presentation.productform.ProductFormViewModel
 import com.kaufmanneng.stashguard.presentation.productlist.ProductListViewModel
 import org.koin.android.ext.koin.androidContext
@@ -32,4 +33,5 @@ val appModule = module {
     // ViewModels
     viewModel<ProductListViewModel> { ProductListViewModel(get(), get()) }
     viewModel<ProductFormViewModel> { ProductFormViewModel(get(), get(), get()) }
+    viewModel<ProductCategoryManagementViewModel> { ProductCategoryManagementViewModel(get()) }
 }
