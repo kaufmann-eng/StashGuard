@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
@@ -13,9 +14,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.kaufmanneng.stashguard.domain.model.ScreenTheme
+import com.kaufmanneng.stashguard.presentation.main.MainViewModel
 import com.kaufmanneng.stashguard.presentation.navigation.ProductCategoryManagement
 import com.kaufmanneng.stashguard.presentation.navigation.ProductForm
 import com.kaufmanneng.stashguard.presentation.navigation.ProductList
+import com.kaufmanneng.stashguard.presentation.navigation.Settings
 import com.kaufmanneng.stashguard.presentation.productcategorymanagement.ProductCategoryManagementScreen
 import com.kaufmanneng.stashguard.presentation.productcategorymanagement.ProductCategoryManagementViewModel
 import com.kaufmanneng.stashguard.presentation.productform.ProductFormNavigationEvent
@@ -24,6 +28,8 @@ import com.kaufmanneng.stashguard.presentation.productform.ProductFormViewModel
 import com.kaufmanneng.stashguard.presentation.productlist.ProductListNavigationEvent
 import com.kaufmanneng.stashguard.presentation.productlist.ProductListScreen
 import com.kaufmanneng.stashguard.presentation.productlist.ProductListViewModel
+import com.kaufmanneng.stashguard.presentation.settings.SettingsScreen
+import com.kaufmanneng.stashguard.presentation.settings.SettingsViewModel
 import com.kaufmanneng.stashguard.ui.theme.StashGuardTheme
 import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
@@ -35,7 +41,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             KoinContext {
-                StashGuardTheme {
+                val mainViewModel = koinViewModel<MainViewModel>()
+                val theme by mainViewModel.theme.collectAsStateWithLifecycle()
+                StashGuardTheme(
+                    darkTheme = when (theme) {
+                        ScreenTheme.LIGHT -> false
+                        ScreenTheme.DARK -> true
+                        ScreenTheme.SYSTEM -> isSystemInDarkTheme()
+                    }
+                ) {
                     Surface(
                         modifier = Modifier.fillMaxSize()
                     ) {
@@ -55,6 +69,9 @@ class MainActivity : ComponentActivity() {
                                             }
                                             is ProductListNavigationEvent.OnNavigateToCategoryManagement -> {
                                                 navController.navigate(ProductCategoryManagement)
+                                            }
+                                            is ProductListNavigationEvent.OnNavigateToSettings -> {
+                                                navController.navigate(Settings)
                                             }
                                         }
                                     }
@@ -89,6 +106,15 @@ class MainActivity : ComponentActivity() {
                                 val state by viewModel.state.collectAsStateWithLifecycle()
 
                                 ProductCategoryManagementScreen(
+                                    state = state,
+                                    onAction = viewModel::onAction,
+                                    onNavigateBack = { navController.navigateUp() }
+                                )
+                            }
+                            composable<Settings> {
+                                val viewModel = koinViewModel<SettingsViewModel>()
+                                val state by viewModel.state.collectAsStateWithLifecycle()
+                                SettingsScreen(
                                     state = state,
                                     onAction = viewModel::onAction,
                                     onNavigateBack = { navController.navigateUp() }

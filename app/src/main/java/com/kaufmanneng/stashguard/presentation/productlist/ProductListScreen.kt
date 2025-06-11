@@ -169,6 +169,13 @@ fun ProductListScreen(
                                     onAction(ProductListAction.OnManageCategoriesClicked)
                                 }
                             )
+                            DropdownMenuItem(
+                                text = { Text("Settings") },
+                                onClick = {
+                                    showMenu = false
+                                    onAction(ProductListAction.OnSettingsClicked)
+                                }
+                            )
                         }
                     }
                 }

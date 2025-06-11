@@ -89,6 +89,11 @@ class ProductListViewModel(
                     _navigationEvent.emit(ProductListNavigationEvent.OnNavigateToCategoryManagement)
                 }
             }
+            is ProductListAction.OnSettingsClicked -> {
+                viewModelScope.launch {
+                    _navigationEvent.emit(ProductListNavigationEvent.OnNavigateToSettings)
+                }
+            }
         }
     }
 

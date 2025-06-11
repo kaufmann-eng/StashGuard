@@ -13,3 +13,6 @@ data class ProductForm(val productId: String?) : Route
 
 @Serializable
 data object ProductCategoryManagement : Route
+
+@Serializable
+data object Settings : Route
