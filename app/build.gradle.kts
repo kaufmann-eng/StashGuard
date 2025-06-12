@@ -103,6 +103,12 @@ dependencies {
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
 
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.contentnegotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.logging)
+
     testImplementation(platform(libs.koin.bom))
     testImplementation(libs.koin.test)
     testImplementation(libs.koin.test.junit4)
