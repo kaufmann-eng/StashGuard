@@ -10,5 +10,6 @@ data class ProductFormState(
     val expirationDate: LocalDate? = null,
     val availableCategories: List<ProductCategory> = emptyList(),
     val isSaving: Boolean = false,
-    val isEditMode: Boolean = false
+    val isEditMode: Boolean = false,
+    val isDataChanged: Boolean = false
 )

@@ -41,21 +41,28 @@ class ProductFormViewModel(
 
     private val _state = MutableStateFlow(ProductFormState())
 
+    private val _initialState = MutableStateFlow(ProductFormState())
+
     init {
         _initialId?.let {
             viewModelScope.launch {
                 productRepository.getProductById(it)?.let { product ->
                     _state.update { currentState ->
-                        currentState.copy(
+                        val loadedState = ProductFormState(
                             name = product.name,
                             productCategory = product.productCategory,
                             quantity = product.quantity,
                             expirationDate = product.expirationDate,
                             isEditMode = true
                         )
+                        _state.value = loadedState
+                        _initialState.value = loadedState
+                        loadedState
                     }
                 }
             }
+        } ?: run {
+            _initialState.value = _state.value
         }
     }
 
@@ -71,13 +78,14 @@ class ProductFormViewModel(
 
     val state = combine(
         flow = _state,
-        flow2 = _categoriesFlow
-    ) { formState, categories ->
-        formState.copy(availableCategories = categories)
+        flow2 = _initialState,
+        flow3 = _categoriesFlow
+    ) { formState, initial, categories ->
+        formState.copy(availableCategories = categories, isDataChanged = formState != initial)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = _state.value
+        initialValue = ProductFormState()
     )
 
     val navigationEvent = _navigationEvent.asSharedFlow()

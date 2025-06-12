@@ -12,12 +12,12 @@ class SettingsViewModel(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    val state = settingsRepository.getTheme()
-        .map { theme -> SettingsState(currentTheme = theme) }
+    val state = settingsRepository.getSettings()
+        .map { settings -> SettingsState(settings = settings, isLoading = false) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = SettingsState()
+            initialValue = SettingsState(isLoading = true)
         )
 
     fun onAction(action: SettingsAction) {
@@ -25,6 +25,11 @@ class SettingsViewModel(
             is SettingsAction.OnThemeSelected -> {
                 viewModelScope.launch {
                     settingsRepository.setTheme(action.theme)
+                }
+            }
+            is SettingsAction.OnDynamicColorChanged -> {
+                viewModelScope.launch {
+                    settingsRepository.setUseDynamicColor(action.isEnabled)
                 }
             }
         }

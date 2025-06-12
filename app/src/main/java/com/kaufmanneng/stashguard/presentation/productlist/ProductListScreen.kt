@@ -61,6 +61,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
+import com.kaufmanneng.stashguard.R
 import com.kaufmanneng.stashguard.domain.model.Product
 import com.kaufmanneng.stashguard.domain.model.ProductCategory
 import kotlinx.coroutines.flow.SharedFlow
@@ -354,6 +355,10 @@ private fun ProductItem(
     val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
     val daysUntilExpiry = today.daysUntil(product.expirationDate)
 
+    val currentContext = LocalContext.current
+    val resources = currentContext.resources
+
+
     OutlinedCard(
         modifier = modifier,
         onClick = onClick,
@@ -363,7 +368,7 @@ private fun ProductItem(
             Text(text = product.name, style = MaterialTheme.typography.titleMedium)
             Text(text = "Category: ${product.productCategory.name}", style = MaterialTheme.typography.bodySmall)
             Text(text = "Quantity: ${product.quantity}", style = MaterialTheme.typography.bodySmall)
-            Text(text = "Expires in: $daysUntilExpiry days", style = MaterialTheme.typography.bodyMedium)
+            Text(text = resources.getQuantityString(R.plurals.product_item_expires_in_days, daysUntilExpiry, daysUntilExpiry), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

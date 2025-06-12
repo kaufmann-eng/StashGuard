@@ -47,11 +47,12 @@ class MainActivity : ComponentActivity() {
                 val mainViewModel = koinViewModel<MainViewModel>()
                 val state by mainViewModel.state.collectAsStateWithLifecycle()
                 StashGuardTheme(
-                    darkTheme = when (state.theme) {
+                    darkTheme = when (state.settings.theme) {
                         ScreenTheme.LIGHT -> false
                         ScreenTheme.DARK -> true
                         ScreenTheme.SYSTEM -> isSystemInDarkTheme()
-                    }
+                    },
+                    dynamicColor = state.settings.useDynamicColor
                 ) {
                     if (state.isLoading) {
                         Box(
@@ -109,7 +110,8 @@ class MainActivity : ComponentActivity() {
                                     ProductFormScreen(
                                         state = state,
                                         event = viewModel.screenEvent,
-                                        onAction = viewModel::onAction
+                                        onAction = viewModel::onAction,
+                                        onNavigateBack = { navController.navigateUp() }
                                     )
                                 }
                                 composable<ProductCategoryManagement> {

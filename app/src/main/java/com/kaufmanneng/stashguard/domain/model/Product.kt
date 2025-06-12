@@ -14,3 +14,5 @@ data class Product(
     val quantity: Int = 1,
     val addedDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
 )
+
+

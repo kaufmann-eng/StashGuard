@@ -582,7 +582,7 @@ val LocalExtendedColors = staticCompositionLocalOf<ExtendedColorScheme> { error(
 fun StashGuardTheme(
     darkTheme: Boolean,
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

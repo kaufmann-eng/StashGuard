@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 class MainViewModel(settingsRepository: SettingsRepository) : ViewModel() {
-    val state = settingsRepository.getTheme()
-        .map { theme ->
-            MainState(theme = theme, isLoading = false)
+    val state = settingsRepository.getSettings()
+        .map { settings ->
+            MainState(settings = settings, isLoading = false)
         }
         .stateIn(
             scope = viewModelScope,

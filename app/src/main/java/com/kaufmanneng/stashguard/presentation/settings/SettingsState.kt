@@ -1,7 +1,10 @@
 package com.kaufmanneng.stashguard.presentation.settings
 
-import com.kaufmanneng.stashguard.domain.model.ScreenTheme
+import androidx.compose.runtime.Immutable
+import com.kaufmanneng.stashguard.domain.model.AppSettings
 
+@Immutable
 data class SettingsState(
-    val currentTheme: ScreenTheme = ScreenTheme.SYSTEM,
+    val settings: AppSettings = AppSettings(),
+    val isLoading: Boolean = true,
 )

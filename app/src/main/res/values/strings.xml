@@ -4,4 +4,8 @@
     <string name="product_category_pasta_rice">Pasta and Rice</string>
     <string name="product_category_unknown">Unknown category</string>
     <string name="back">Back</string>
+    <plurals name="product_item_expires_in_days">
+        <item quantity="one">Expires in %d day</item>
+        <item quantity="other">Expires in %d days</item>
+    </plurals>
 </resources>

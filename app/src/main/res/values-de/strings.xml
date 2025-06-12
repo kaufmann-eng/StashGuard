@@ -5,4 +5,8 @@
     <string name="product_category_pasta_rice">Pasta und Reis</string>
     <string name="product_category_unknown">Unbekannte Kategorie</string>
     <string name="back">Zurück</string>
+    <plurals name="product_item_expires_in_days">"
+        <item quantity="one">Läuft in %d Tag ab</item>
+        <item quantity="other">Läuft in %d Tagen ab</item>
+    </plurals>
 </resources>

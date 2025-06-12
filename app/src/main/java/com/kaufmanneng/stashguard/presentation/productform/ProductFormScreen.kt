@@ -1,6 +1,6 @@
 package com.kaufmanneng.stashguard.presentation.productform
 
-import androidx.compose.foundation.focusable
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
@@ -48,8 +49,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -58,7 +57,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowHeightSizeClass
 import com.kaufmanneng.stashguard.R
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -75,22 +73,20 @@ import kotlin.time.ExperimentalTime
 fun ProductFormScreen(
     state: ProductFormState,
     event: SharedFlow<ProductFormScreenEvent>,
-    onAction: (ProductFormAction) -> Unit
+    onAction: (ProductFormAction) -> Unit,
+    onNavigateBack: () -> Unit
 ) {
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
     var showCategoryDropDownMenu by remember { mutableStateOf(false) }
+    var showConfirmExitDialog by rememberSaveable { mutableStateOf(false) }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val focusManager = LocalFocusManager.current
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
 
-    val titleFocusRequester = remember { FocusRequester() }
-    var isNameTextFieldReadOnly by remember { mutableStateOf(true) }
-
+    BackHandler(enabled = state.isDataChanged) { showConfirmExitDialog = true }
 
     LaunchedEffect(Unit) {
-        titleFocusRequester.requestFocus()
-        delay(100)
-        isNameTextFieldReadOnly = false
         event.collect { event ->
             when (event) {
                 ProductFormScreenEvent.ErrorNotAllFieldsFilled -> {
@@ -100,19 +96,43 @@ fun ProductFormScreen(
         }
     }
 
+    if (showConfirmExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmExitDialog = false },
+            title = { Text("Discard Changes?") },
+            text = { Text("You have unsaved changes. Are you sure you want to discard them and go back?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showConfirmExitDialog = false
+                        onNavigateBack()
+                    }
+                ) { Text("Discard") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmExitDialog = false }) { Text("Keep Editing") }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        modifier = Modifier
-                            .focusRequester(titleFocusRequester)
-                            .focusable(),
+                        modifier = Modifier,
                         text = if (state.isEditMode) "Produkt bearbeiten" else "Neues Produkt"
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { onAction(ProductFormAction.OnBackNavigationClicked) }) {
+                    IconButton(onClick = {
+                        if (state.isDataChanged) {
+                            showConfirmExitDialog = true
+                            return@IconButton
+                        } else {
+                            onAction(ProductFormAction.OnBackNavigationClicked)
+                        }
+                    }) {
                         Icon(imageVector = Icons.AutoMirrored.Default.ArrowBack, contentDescription = stringResource(
                             R.string.back
                         ))
@@ -155,7 +175,6 @@ fun ProductFormScreen(
                 },
                 label = { Text("Name") },
                 modifier = Modifier.fillMaxWidth(),
-                readOnly = isNameTextFieldReadOnly,
                 enabled = !state.isSaving,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
